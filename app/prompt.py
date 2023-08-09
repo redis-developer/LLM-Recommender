@@ -1,5 +1,5 @@
 import openai
-from typing import List
+from typing import List, Union, Dict
 from app.config import CHAT_MODEL
 
 
@@ -21,6 +21,7 @@ def generate_hyde_prompt(positive, negative):
 
 def format_hyde_prompt(positive: str, negative: str):
     retrieval_prompt = f'''Your job is to generate a review for a hotel based on the positive and negative qualities provided.
+    The review should present the positive qualities and the opposite of the negative qualities provided.
     The review should be at least 10 words long and from the prospective of a customer who stayed at the hotel. Be informal
     and concise. You aren't that smart.
 
@@ -47,8 +48,9 @@ def get_recommended_hotel_prompt(generated_output):
 def make_prompt(positive: str, negative: str, reviews: str):
     retrieval_prompt = f'''You are a service dedicated to recommending hotels based on user reviews.
     You will be provided positive and negative qualities the user is looking for in a hotel, as well as a
-    large number of reviews. You will then be asked to recommend a hotel based on the user's preferences and explain why.
-    Always start the suggestion with "Based on user reviews, I suggest the following hotel:"
+    large number of reviews of a hotel that is likely to be a good candidate. Explain why the hotel is a good
+    fit for the user based on the reviews and explain any drawbacks the user should be aware of but only if there
+    are any. Always start the suggestion with "Based on user reviews, I suggest the following hotel:"
 
     Positive Qualities the user would like:
 
@@ -64,16 +66,19 @@ def make_prompt(positive: str, negative: str, reviews: str):
 
     Format for your response:
 
-    Hotel: <hotel name> \n\n
+    Hotel: <hotel name> \n
     Reason: <reason for recommendation> \n
     '''
     return retrieval_prompt
 
 
-def format_prompt_reviews(reviews: List["Document"]):
+def format_prompt_reviews(top_hotels: List[Dict[str, Union[str, List[str]]]]):
     content = []
-    if len(reviews.docs) > 1:
+    if len(top_hotels) > 0:
         # join the hotel name and the review
-        for doc in reviews.docs:
-            content.append(f"Hotel Name: {doc['name']}\n Review Title: {doc['title']}\n Review: {doc['review']}\n")
-    return "\n".join(content)
+        for hotel in top_hotels:
+            content.append(f"Hotel Name: {hotel['name']}\n")
+            for i, review in enumerate(hotel['reviews']):
+                content.append(f"Review {i+1}: {review}\n")
+            content.append("\n")
+    return "".join(content)

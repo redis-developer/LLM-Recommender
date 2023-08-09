@@ -17,8 +17,7 @@ from app.retrieve import (
     create_retrieval_index,
     retrieve_context,
     make_filter,
-    retrieve_hotel_reviews,
-    retrieve_hotel_data
+    retrieve_top_three_hotels
 )
 from app.prompt import (
     make_prompt,
@@ -120,26 +119,30 @@ def main():
                                            EMBEDDING_MODEL,
                                            query_filter=query_filter)
 
-                all_reviews = format_prompt_reviews(context)
+                top_three_hotels = retrieve_top_three_hotels(context)
+
+                # TODO catch index error
+                top_hotel = top_three_hotels[0]
+                top_hotel_reviews = format_prompt_reviews([top_hotel])
+                other_options = format_prompt_reviews(top_three_hotels)
 
                 recommendation = recommend_hotel(
                     st.session_state['positive'],
                     st.session_state['negative'],
-                    all_reviews
+                    top_hotel_reviews
                 )
 
-                hotel_name = get_hotel_name(recommendation)
-                rating, hotel_reviews = retrieve_hotel_reviews(INDEX, hotel_name)
-                reviews = "\n".join([f"{i}. " + review for i, review in enumerate(hotel_reviews, 1)])
-
-                hotel_info = f"Name: {hotel_name} \nAverage Rating: {rating}"
-                hotel_data = retrieve_hotel_data(INDEX, hotel_name)
-                if hotel_data:
-                    hotel_info += "\n" + "\n".join([f"{k}: {v}" for k, v in hotel_data.items()])
+                hotel_info = {
+                    "Hotel Name": top_hotel['name'],
+                    "Hotel Address": top_hotel['address'],
+                    "City": top_hotel['city'],
+                    "State": top_hotel['state'],
+                }
+                hotel_info = "\n" + "\n".join([f"{k}: {v}" for k, v in hotel_info.items()])
                 st.session_state['response'] = recommendation
                 st.session_state['hotel_info'] = hotel_info
-                st.session_state['hotel_reviews'] = reviews
-                st.session_state['all_similar_reviews'] = all_reviews
+                st.session_state['hotel_reviews'] = top_hotel_reviews
+                st.session_state['all_similar_reviews'] = other_options
 
 
             st.write("### Recommendations")
