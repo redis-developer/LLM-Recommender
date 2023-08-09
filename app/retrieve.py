@@ -1,8 +1,8 @@
 
-import openai
 from redisvl.query import TagFilter, VectorQuery
 from redisvl.index import SearchIndex
-from redis.commands.search.query import Query
+from typing import List, Dict
+
 
 from app.config import REDIS_ADDRESS, SCHEMA
 
@@ -29,37 +29,46 @@ def retrieve_context(index, search_prompt, vectorizer, query_filter=None):
         vector_field_name="embedding",
         return_fields=["review", "name", "title", "address", "city", "state"],
         hybrid_filter=query_filter,
-        num_results=30
+        num_results=100,
     )
 
     results = index.query(vector_query)
     return results
 
-def retrieve_hotel_data(index, hotel_name):
-    query = TagFilter("name", hotel_name)
-    results = index.search(str(query))
-    if results:
-        data = results.docs[0].__dict__
+
+def retrieve_top_three_hotels(results: List["Documents"]):
+    # count the number of reviews for each hotel and return the three with the most reviews
+    hotel_reviews: Dict[str, List[int, List[str]]] = {}
+    hotel_data: Dict[str, Dict] = {}
+
+    def get_fields(doc):
         return {
-            "address": data["address"],
-            "city": data["city"],
-            "state": data["state"],
-            "categories": data["categories"]
+            "name": doc["name"],
+            "address": doc["address"],
+            "city": doc["city"],
+            "state": doc["state"],
+            "title": doc["title"],
+            "review": doc["review"],
         }
-    return None
 
+    for doc in results.docs:
+        hash_key = str(hash(doc["name"] + doc["address"] + doc["city"] + doc["state"]))
+        if hash_key in hotel_reviews:
+            hotel_reviews[hash_key][0] += 1
+            hotel_reviews[hash_key][1].append(doc["review"])
 
-def retrieve_hotel_reviews(index, hotel_name):
-    rating = 0
-    reviews = []
-    query = TagFilter("name", hotel_name)
-    results = index.search(str(query))
-    if results:
-        for doc in results.docs:
-            reviews.append(doc["review"])
-            rating += int(doc["rating"])
-        rating = rating / len(results.docs)
-    return rating, reviews
+        else:
+            hotel_reviews[hash_key] = [1, [doc["review"]]]
+            hotel_data[hash_key] = get_fields(doc)
+
+    top_three = sorted(hotel_reviews.items(), key=lambda x: x[1][0], reverse=True)[:3]
+    top_three_hotels = []
+    for hash_key, review_data in top_three:
+        reviews = review_data[1]
+        hotel = hotel_data[hash_key]
+        top_three_hotels.append({**hotel, "reviews": reviews})
+    return top_three_hotels
+
 
 def make_filter(state: str = None, city: str = None) -> TagFilter:
     if state is None and city is None:
