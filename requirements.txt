@@ -1,0 +1,6 @@
+redisvl==0.0.2
+streamlit>=1.25.0
+sentence-transformers>=2.2.2
+tiktoken>=0.4.0
+openai>=0.27.8
+python-dotenv
