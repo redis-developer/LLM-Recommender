@@ -68,7 +68,11 @@ def load_data():
 
 def set_city():
     state = st.session_state["state"]
-    return CITIES[state][0]
+    try:
+        return CITIES[state][0]
+    except IndexError:
+        return []
+
 
 def main():
     data = load_data()
@@ -78,8 +82,8 @@ def main():
     try:
         # Defining default values
         defaults = {
-            "state": "AL",
-            "city": CITIES["AL"][0],
+            "state": "",
+            "city": "",
             "positive": "",
             "negative": "",
             "response": "",
@@ -94,11 +98,17 @@ def main():
                 st.session_state[key] = value
 
         col1, col2 = st.columns([4,2])
-        with col1:
-            st.write("# LLM Hotel Recommendation System")
 
-        st.selectbox("State", STATES, key="state", on_change=set_city)
-        st.selectbox("City", CITIES[st.session_state['state']], key="city")
+        st.write("# LLM Hotel Recommender")
+        with st.sidebar:
+            st.write("## Filter By Location")
+            st.selectbox("State", STATES, key="state", on_change=set_city)
+            st.selectbox("City", CITIES[st.session_state['state']], key="city")
+
+        st.write("The LLM Hotel Recommender is a Streamlit app that uses Redis and the " +
+                 "OpenAI API to generate hotel recommendations based on a user's preferences.")
+
+
         st.text_input("What would you like in a hotel?", key="positive")
         st.text_input("What would you like to avoid in a hotel?", key="negative")
 
@@ -153,6 +163,18 @@ def main():
             with st.expander("Show All Similar Reviews"):
                 st.text(st.session_state['all_similar_reviews'])
 
+        st.write("\n")
+        st.write("---------")
+        st.write("\n")
+        st.write("### About")
+        st.write("The recommender uses the Hypothetical Document Embeddings (HyDE)" +
+                 " approach which uses an LLM (OpenAI in this case) to generate a fake review" +
+                 " based on user input. The system then uses Redis vector search to semantically search"
+                 " for hotels with reviews that are similar to the fake review. The returned reviews" +
+                 " are then passed to another LLM to generate a recommendation for the user.")
+
+        st.write("#### Dataset")
+        st.write("The dataset is from [Datafiniti](https://data.world/datafiniti/hotel-reviews) and is hosted on data.world")
 
     except URLError as e:
         st.error(
