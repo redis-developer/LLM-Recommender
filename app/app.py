@@ -118,7 +118,6 @@ def main():
                                            hyde_prompt,
                                            EMBEDDING_MODEL,
                                            query_filter=query_filter)
-
                 top_three_hotels = retrieve_top_three_hotels(context)
 
                 # TODO catch index error

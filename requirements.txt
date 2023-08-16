@@ -1,4 +1,4 @@
-redisvl==0.0.2
+redisvl==0.0.3
 streamlit>=1.25.0
 sentence-transformers>=2.2.2
 tiktoken>=0.4.0
