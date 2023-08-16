@@ -1,4 +1,13 @@
 
+<div align="center">
+<div display="inline-block">
+    <a href="https://github.com/RedisVentures/RedisVL"><b>RedisVL GitHub</b></a>&nbsp;&nbsp;&nbsp;
+    <a href="https://www.redisvl.com"><b>RedisVL Documentation</b></a>&nbsp;&nbsp;&nbsp;
+    <a href="https://github.com/RedisVentures"><b>More Projects</b></a>&nbsp;&nbsp;&nbsp;
+  </div>
+    <br />
+</div>
+
 # LLM Hotel Recommender
 
 The LLM Hotel Recommender is a Streamlit app that uses [Redis](https://redis.com) and the [OpenAI API](https://api.openai.com/) to generate hotel recommendations based on a user's preferences. Because Redis can perform semantic search in addition to other operations like tag and text search
@@ -11,6 +20,12 @@ users are able to search for hotels in the US based on a variety of criteria, in
 
 The application will cite it's sources (reviews) for each recommendation and provide all the reviews that were returned.
 
+
+
+<div align="center">
+    <img width="800" alt="Screen Shot 2023-08-15 at 5 55 25 PM" src="https://github.com/RedisVentures/LLM-Recommender/assets/13009163/e13b34a7-67d2-4dfc-996d-28d6652e23f9">
+</div>
+
 ## Design
 
 The recommender uses the Hypothetical Document Embeddings (HyDE) approach which uses an LLM (OpenAI in this case)
@@ -20,7 +35,6 @@ generate a recommendation for the user.
 
 ![Design](./assets/design.png#gh-light-mode-only)
 ![Design](./assets/design-dark.png#gh-dark-mode-only)
-
 
 ## Run the Application
 
