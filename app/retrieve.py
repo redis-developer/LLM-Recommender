@@ -1,10 +1,11 @@
 
-from redisvl.query import TagFilter, VectorQuery
+from redisvl.query import VectorQuery
+from redisvl.query.filter import Tag, FilterExpression
 from redisvl.index import SearchIndex
-from typing import List, Dict
-
+from typing import List, Dict, Union, Any
 
 from app.config import REDIS_ADDRESS, SCHEMA
+
 
 def create_retrieval_index(data):
     index = SearchIndex.from_yaml(SCHEMA)
@@ -28,15 +29,15 @@ def retrieve_context(index, search_prompt, vectorizer, query_filter=None):
         vector=query_embedding,
         vector_field_name="embedding",
         return_fields=["review", "name", "title", "address", "city", "state"],
-        hybrid_filter=query_filter,
-        num_results=100,
+        filter_expression=query_filter,
+        num_results=30,
     )
 
     results = index.query(vector_query)
     return results
 
 
-def retrieve_top_three_hotels(results: List["Documents"]):
+def retrieve_top_three_hotels(results: List[Dict[str, Any]]):
     # count the number of reviews for each hotel and return the three with the most reviews
     hotel_reviews: Dict[str, List[int, List[str]]] = {}
     hotel_data: Dict[str, Dict] = {}
@@ -51,7 +52,7 @@ def retrieve_top_three_hotels(results: List["Documents"]):
             "review": doc["review"],
         }
 
-    for doc in results.docs:
+    for doc in results:
         hash_key = str(hash(doc["name"] + doc["address"] + doc["city"] + doc["state"]))
         if hash_key in hotel_reviews:
             hotel_reviews[hash_key][0] += 1
@@ -70,17 +71,14 @@ def retrieve_top_three_hotels(results: List["Documents"]):
     return top_three_hotels
 
 
-def make_filter(state: str = None, city: str = None) -> TagFilter:
-    if state is None and city is None:
-        return None
-    elif state is None:
-        query_filter = TagFilter("city", city)
-    elif city is None:
-        query_filter = TagFilter("state", state)
+def make_filter(state: str = None, city: str = None) -> Union[FilterExpression, None]:
+    state_tag = Tag("state")
+    city_tag = Tag("city")
+    if state and city:
+        return (state_tag == state) & (city_tag == city)
+    elif state:
+        return state_tag == state
+    elif city:
+        return city_tag == city
     else:
-        query_filter = TagFilter("state", state)
-        city_filter = TagFilter("city", city)
-        query_filter += city_filter
-    return query_filter
-
-
+        return None
