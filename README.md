@@ -1,9 +1,9 @@
 
 <div align="center">
 <div display="inline-block">
-    <a href="https://github.com/RedisVentures/RedisVL"><b>RedisVL GitHub</b></a>&nbsp;&nbsp;&nbsp;
+    <a href="https://github.com/redis/redis-vl-python"><b>RedisVL GitHub</b></a>&nbsp;&nbsp;&nbsp;
     <a href="https://www.redisvl.com"><b>RedisVL Documentation</b></a>&nbsp;&nbsp;&nbsp;
-    <a href="https://github.com/RedisVentures"><b>More Projects</b></a>&nbsp;&nbsp;&nbsp;
+    <a href="https://github.com/redis-developer/redis-ai-resources/tree/main"><b>More Projects</b></a>&nbsp;&nbsp;&nbsp;
   </div>
     <br />
 </div>
@@ -23,7 +23,7 @@ The application will cite it's sources (reviews) for each recommendation and pro
 
 
 <div align="center">
-    <img width="800" alt="Screen Shot 2023-08-15 at 5 55 25 PM" src="https://github.com/RedisVentures/LLM-Recommender/assets/13009163/e13b34a7-67d2-4dfc-996d-28d6652e23f9">
+    <img width="800" alt="Screen Shot 2023-08-15 at 5 55 25 PM" src="https://github.com/redis-developer/LLM-Recommender/assets/13009163/e13b34a7-67d2-4dfc-996d-28d6652e23f9">
 </div>
 
 ## Design
@@ -75,7 +75,7 @@ generate a recommendation for the user.
 
 2. Clone the repo:
     ```bash
-    $ git clone https://github.com/RedisVentures/llm-recommender.git
+    $ git clone https://github.com/redis-developer/LLM-Recommender.git
 
 3. Install dependencies:
     ```bash
